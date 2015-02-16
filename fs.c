@@ -175,7 +175,7 @@ static struct dentry *fs_dir_iop_lookup(struct inode *dir,
 		if (IS_ERR(inode))
 			dnew = ERR_CAST(inode);
 		else
-			dnew = d_materialise_unique(dentry, inode);
+			dnew = d_splice_alias(inode, dentry);
 
 		kdbus_node_release(node);
 	}
@@ -210,7 +210,6 @@ static struct inode *fs_inode_get(struct super_block *sb,
 
 	inode->i_private = kdbus_node_ref(node);
 	inode->i_mapping->a_ops = &empty_aops;
-	inode->i_mapping->backing_dev_info = &noop_backing_dev_info;
 	inode->i_mode = node->mode & S_IALLUGO;
 	inode->i_atime = inode->i_ctime = inode->i_mtime = CURRENT_TIME;
 	inode->i_uid = node->uid;
